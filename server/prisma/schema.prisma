@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+// Entities
+model User {
+  id       Int    @id @default(autoincrement())
+  name     String
+  email    String @unique
+  password String
+  age      Int
+  gender   Gender
+  country  String
+
+  // Relations
+  likes    Like[]
+  archives Archive[]
+  Comment  Comment[]
+}
+
+model NArticle {
+  id       Int    @id @default(autoincrement())
+  headline String
+  content  String
+  date     String
+  image    String
+
+  clicks   Click[]
+  Copy     Copy[]
+  shares   Share[]
+  likes    Like[]
+  archives Archive[]
+  Comment  Comment[]
+}
+
+// Interactions
+model Click {
+  id        Int      @id @default(autoincrement())
+  user_id   Int
+  country   String
+  timestamp DateTime @default(now())
+
+  NArticle   NArticle? @relation(fields: [nArticleId], references: [id])
+  nArticleId Int?
+}
+
+model Copy {
+  id        Int      @id @default(autoincrement())
+  user_id   Int
+  country   String
+  timestamp DateTime @default(now())
+  text      String
+
+  // Relations
+  NArticle   NArticle? @relation(fields: [nArticleId], references: [id])
+  nArticleId Int?
+}
+
+model Share {
+  id        Int      @id @default(autoincrement())
+  user_id   Int
+  country   String
+  timestamp DateTime @default(now())
+
+  // Relations
+  NArticle   NArticle? @relation(fields: [nArticleId], references: [id])
+  nArticleId Int?
+}
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  country   String
+  timestamp DateTime @default(now())
+
+  User   User? @relation(fields: [userId], references: [id])
+  userId Int?
+
+  NArticle   NArticle? @relation(fields: [nArticleId], references: [id])
+  nArticleId Int?
+}
+
+model Archive {
+  id        Int      @id @default(autoincrement())
+  country   String
+  timestamp DateTime @default(now())
+
+  User       User?     @relation(fields: [userId], references: [id])
+  userId     Int?
+  NArticle   NArticle? @relation(fields: [nArticleId], references: [id])
+  nArticleId Int?
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  country   String
+  timestamp DateTime @default(now())
+  text      String
+  name      String
+
+  // Relations
+  User   User? @relation(fields: [userId], references: [id])
+  userId Int?
+
+  NArticle   NArticle? @relation(fields: [nArticleId], references: [id])
+  nArticleId Int?
+}
